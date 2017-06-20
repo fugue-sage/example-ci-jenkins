@@ -10,12 +10,12 @@ stage('Test: Compile Time Validation') {
       }
     }
     if (env.BRANCH_NAME =~ /^release\/.*$|^hotfix\/.*$/) {
-      withEnv(["ENVIRONMENT=DEV"]) {
+      withEnv(["ENVIRONMENT=QA"]) {
         run_validations()
       }
     }
     if (env.BRANCH_NAME =~ /^master$/) {
-      withEnv(["ENVIRONMENT=DEV"]) {
+      withEnv(["ENVIRONMENT=PROD"]) {
         run_validations()
       }
     }
@@ -41,7 +41,7 @@ stage('Test: Fugue Dry Run') {
       }
     }
     if (env.BRANCH_NAME =~ /^release\/.*$|^hotfix\/.*$/) {
-      withEnv(["ENVIRONMENT=DEV"]) {
+      withEnv(["ENVIRONMENT=QA"]) {
         withCredentials([[$class: 'StringBinding', credentialsId: 'DEMO_AWS_ACCESS_KEY_ID', variable: 'AWS_ACCESS_KEY_ID'],
                          [$class: 'StringBinding', credentialsId: 'DEMO_AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY']]) {
           run_dry_run()
@@ -49,7 +49,7 @@ stage('Test: Fugue Dry Run') {
       }
     }
     if (env.BRANCH_NAME =~ /^master$/) {
-      withEnv(["ENVIRONMENT=DEV"]) {
+      withEnv(["ENVIRONMENT=PROD"]) {
         withCredentials([[$class: 'StringBinding', credentialsId: 'DEMO_AWS_ACCESS_KEY_ID', variable: 'AWS_ACCESS_KEY_ID'],
                          [$class: 'StringBinding', credentialsId: 'DEMO_AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY']]) {
           run_dry_run()
@@ -69,7 +69,7 @@ stage('Deploy: Fugue Run and Update') {
           if(ret == 0) {
             sh("fugue update ${env.BRANCH_NAME} compositions/CreateDeveloperEnvironment.lw -y")
           } else {
-            sh("fugue run compositions/CreateDeveloperEnvironment.lw -a ${env.BRANCH_NAME}")
+            sh("fugue run compositions/CreateDeveloperEnvironment.lw -a ${env.BRANCH_NAME} --account staging")
           }
         }
       }
@@ -82,26 +82,26 @@ stage('Deploy: Fugue Run and Update') {
           if(ret == 0) {
             sh('fugue update develop compositions/CreateDeveloperEnvironment.lw -y')
           } else {
-            sh('fugue run compositions/CreateDeveloperEnvironment.lw -a develop')
+            sh('fugue run compositions/CreateDeveloperEnvironment.lw -a develop  --account development')
           }
         }
       }
     }
     if (env.BRANCH_NAME =~ /^release\/.*$|^hotfix\/.*$/) {
-      withEnv(["ENVIRONMENT=DEV"]) {
+      withEnv(["ENVIRONMENT=QA"]) {
         withCredentials([[$class: 'StringBinding', credentialsId: 'DEMO_AWS_ACCESS_KEY_ID', variable: 'AWS_ACCESS_KEY_ID'], 
                          [$class: 'StringBinding', credentialsId: 'DEMO_AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY']]) {
           def ret = sh(script: 'fugue status staging', returnStatus: true)
           if(ret == 0) {
             sh('fugue update staging compositions/CreateDeveloperEnvironment.lw -y')
           } else {
-            sh('fugue run compositions/CreateDeveloperEnvironment.lw -a staging')
+            sh('fugue run compositions/CreateDeveloperEnvironment.lw -a staging --account staging')
           }
         }
       }
     }
     if (env.BRANCH_NAME =~ /^master$/) {
-      withEnv(["ENVIRONMENT=DEV"]) {
+      withEnv(["ENVIRONMENT=PROD"]) {
         withCredentials([[$class: 'StringBinding', credentialsId: 'DEMO_AWS_ACCESS_KEY_ID', variable: 'AWS_ACCESS_KEY_ID'], 
                          [$class: 'StringBinding', credentialsId: 'DEMO_AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY']]) {
           def ret = sh(script: 'fugue status production', returnStatus: true)
@@ -129,7 +129,7 @@ def run_validations() {
 
 def run_dry_run() {
   withCredentials([[$class: 'StringBinding', credentialsId: 'FUGUE_ROOT_USER', variable: 'FUGUE_ROOT_USER']]) {
-    sh('fugue init ami-d1441bc7')
+    sh('fugue init us-east-1')
     sh("fugue user set root ${env.FUGUE_ROOT_USER}")
     sh('fugue status')
     sh('fugue run compositions/CreateDeveloperEnvironment.lw --dry-run')
