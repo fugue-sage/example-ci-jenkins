@@ -10,12 +10,12 @@ stage('Test: Compile Time Validation') {
       }
     }
     if (env.BRANCH_NAME =~ /^release\/.*$|^hotfix\/.*$/) {
-      withEnv(["ENVIRONMENT=DEV"]) {
+      withEnv(["ENVIRONMENT=QA"]) {
         run_validations()
       }
     }
     if (env.BRANCH_NAME =~ /^master$/) {
-      withEnv(["ENVIRONMENT=DEV"]) {
+      withEnv(["ENVIRONMENT=PROD"]) {
         run_validations()
       }
     }
@@ -41,7 +41,7 @@ stage('Test: Fugue Dry Run') {
       }
     }
     if (env.BRANCH_NAME =~ /^release\/.*$|^hotfix\/.*$/) {
-      withEnv(["ENVIRONMENT=DEV"]) {
+      withEnv(["ENVIRONMENT=QA"]) {
         withCredentials([[$class: 'StringBinding', credentialsId: 'DEMO_AWS_ACCESS_KEY_ID', variable: 'AWS_ACCESS_KEY_ID'],
                          [$class: 'StringBinding', credentialsId: 'DEMO_AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY']]) {
           run_dry_run()
@@ -49,7 +49,7 @@ stage('Test: Fugue Dry Run') {
       }
     }
     if (env.BRANCH_NAME =~ /^master$/) {
-      withEnv(["ENVIRONMENT=DEV"]) {
+      withEnv(["ENVIRONMENT=PROD"]) {
         withCredentials([[$class: 'StringBinding', credentialsId: 'DEMO_AWS_ACCESS_KEY_ID', variable: 'AWS_ACCESS_KEY_ID'],
                          [$class: 'StringBinding', credentialsId: 'DEMO_AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY']]) {
           run_dry_run()
@@ -88,7 +88,7 @@ stage('Deploy: Fugue Run and Update') {
       }
     }
     if (env.BRANCH_NAME =~ /^release\/.*$|^hotfix\/.*$/) {
-      withEnv(["ENVIRONMENT=DEV"]) {
+      withEnv(["ENVIRONMENT=QA"]) {
         withCredentials([[$class: 'StringBinding', credentialsId: 'DEMO_AWS_ACCESS_KEY_ID', variable: 'AWS_ACCESS_KEY_ID'], 
                          [$class: 'StringBinding', credentialsId: 'DEMO_AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY']]) {
           def ret = sh(script: 'fugue status staging', returnStatus: true)
@@ -101,7 +101,7 @@ stage('Deploy: Fugue Run and Update') {
       }
     }
     if (env.BRANCH_NAME =~ /^master$/) {
-      withEnv(["ENVIRONMENT=DEV"]) {
+      withEnv(["ENVIRONMENT=PROD"]) {
         withCredentials([[$class: 'StringBinding', credentialsId: 'DEMO_AWS_ACCESS_KEY_ID', variable: 'AWS_ACCESS_KEY_ID'], 
                          [$class: 'StringBinding', credentialsId: 'DEMO_AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY']]) {
           def ret = sh(script: 'fugue status production', returnStatus: true)
