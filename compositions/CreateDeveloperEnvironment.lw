@@ -20,7 +20,7 @@ devNetwork: Network.new {
   enableDnsSupport: True,
   enableDnsHostnames: True,
   tags: [
-    AWS.tag("Name", "Developer Environment")
+    AWS.tag("App", "Developer Environment")
   ],
 }
 
