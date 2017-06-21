@@ -69,7 +69,7 @@ stage('Deploy: Fugue Run and Update') {
           if(ret == 0) {
             sh("fugue update ${env.BRANCH_NAME} compositions/CreateDeveloperEnvironment.lw -y")
           } else {
-            sh("fugue run compositions/CreateDeveloperEnvironment.lw -a ${env.BRANCH_NAME}")
+            sh("fugue run compositions/CreateDeveloperEnvironment.lw -a ${env.BRANCH_NAME} --account staging")
           }
         }
       }
@@ -82,7 +82,7 @@ stage('Deploy: Fugue Run and Update') {
           if(ret == 0) {
             sh('fugue update develop compositions/CreateDeveloperEnvironment.lw -y')
           } else {
-            sh('fugue run compositions/CreateDeveloperEnvironment.lw -a develop')
+            sh('fugue run compositions/CreateDeveloperEnvironment.lw -a develop  --account development')
           }
         }
       }
@@ -95,7 +95,7 @@ stage('Deploy: Fugue Run and Update') {
           if(ret == 0) {
             sh('fugue update staging compositions/CreateDeveloperEnvironment.lw -y')
           } else {
-            sh('fugue run compositions/CreateDeveloperEnvironment.lw -a staging')
+            sh('fugue run compositions/CreateDeveloperEnvironment.lw -a staging --account staging')
           }
         }
       }
